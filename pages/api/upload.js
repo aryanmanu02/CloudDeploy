@@ -3,6 +3,7 @@ const multer = require('multer');
 const aws = require('aws-sdk');
 const multerS3 = require('multer-s3');
 
+// ✅ Create S3 client using IAM Role
 const s3 = new aws.S3({
   region: process.env.AWS_REGION,
 });
