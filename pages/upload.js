@@ -2,7 +2,7 @@ import s3 from '@/utils/s3';
 import formidable from 'formidable';
 import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
-
+const formidable = require('formidable');
 export const config = {
   api: {
     bodyParser: false,
