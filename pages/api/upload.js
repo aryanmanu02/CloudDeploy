@@ -3,9 +3,7 @@ const multer = require('multer');
 const aws = require('aws-sdk');
 const multerS3 = require('multer-s3');
 
-const s3 = new aws.S3({
-  region: process.env.AWS_REGION,
-});
+const s3 = new aws.S3({ region: process.env.AWS_REGION });
 
 const upload = multer({
   storage: multerS3({

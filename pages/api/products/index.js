@@ -1,18 +1,18 @@
-const nextConnect = require('next-connect');
-const clientPromise = require('@/utils/mongodb');
+const nextConnectIndex = require('next-connect');
+const clientPromiseIndex = require('@/utils/mongodb');
 
-const handler = nextConnect();
+const handlerIndex = nextConnectIndex();
 
-handler.get(async (_, res) => {
-  const client = await clientPromise;
+handlerIndex.get(async (_, res) => {
+  const client = await clientPromiseIndex;
   const products = await client.db('cruddb').collection('products').find().toArray();
   res.json(products);
 });
 
-handler.post(async (req, res) => {
-  const client = await clientPromise;
+handlerIndex.post(async (req, res) => {
+  const client = await clientPromiseIndex;
   const result = await client.db('cruddb').collection('products').insertOne(req.body);
   res.status(201).json(result);
 });
 
-module.exports = handler;
+module.exports = handlerIndex;
