@@ -1,4 +1,4 @@
-import AWS from 'aws-sdk';
+const AWS = require('aws-sdk');
 
 AWS.config.update({
   region: process.env.AWS_REGION,
@@ -6,4 +6,4 @@ AWS.config.update({
 
 const s3 = new AWS.S3();
 
-export default s3;
+module.exports = s3;

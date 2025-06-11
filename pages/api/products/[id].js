@@ -1,6 +1,6 @@
-import nextConnect from 'next-connect';
-import clientPromise from '@/utils/mongodb';
-import { ObjectId } from 'mongodb';
+const nextConnect = require('next-connect');
+const clientPromise = require('@/utils/mongodb');
+const { ObjectId } = require('mongodb');
 
 const handler = nextConnect();
 
@@ -20,4 +20,4 @@ handler.delete(async (req, res) => {
   res.json({ success: true });
 });
 
-export default handler;
+module.exports = handler;

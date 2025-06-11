@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+const { MongoClient } = require('mongodb');
 
 const uri = process.env.MONGODB_URI;
 if (!uri) throw new Error('MONGODB_URI missing');
@@ -13,4 +13,4 @@ if (!global._mongoClientPromise) {
 
 clientPromise = global._mongoClientPromise;
 
-export default clientPromise;
+module.exports = clientPromise;

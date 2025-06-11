@@ -1,9 +1,9 @@
-import nextConnect from 'next-connect';
-import multer from 'multer';
-import AWS from 'aws-sdk';
-import multerS3 from 'multer-s3';
+const nextConnect = require('next-connect');
+const multer = require('multer');
+const aws = require('aws-sdk');
+const multerS3 = require('multer-s3');
 
-const s3 = new AWS.S3({
+const s3 = new aws.S3({
   region: process.env.AWS_REGION,
 });
 
@@ -30,10 +30,9 @@ handler.post((req, res) => {
   res.status(200).json({ url: req.file.location });
 });
 
-export const config = {
+module.exports = handler;
+module.exports.config = {
   api: {
     bodyParser: false,
   },
 };
-
-export default handler;

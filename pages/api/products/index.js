@@ -1,5 +1,5 @@
-import nextConnect from 'next-connect';
-import clientPromise from '@/utils/mongodb';
+const nextConnect = require('next-connect');
+const clientPromise = require('@/utils/mongodb');
 
 const handler = nextConnect();
 
@@ -15,4 +15,4 @@ handler.post(async (req, res) => {
   res.status(201).json(result);
 });
 
-export default handler;
+module.exports = handler;
