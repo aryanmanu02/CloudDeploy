@@ -1,23 +1,23 @@
-const nextConnectId = require('next-connect');
-const clientPromiseId = require('@/utils/mongodb');
+const nextConnect = require('next-connect');
+const clientPromise = require('@/utils/mongodb');
 const { ObjectId } = require('mongodb');
 
-const handlerId = nextConnectId();
+const handler = nextConnect();
 
-handlerId.put(async (req, res) => {
-  const client = await clientPromiseId;
+handler.put(async (req, res) => {
+  const client = await clientPromise;
   const { id } = req.query;
   await client.db('cruddb').collection('products')
     .updateOne({ _id: new ObjectId(id) }, { $set: req.body });
   res.json({ success: true });
 });
 
-handlerId.delete(async (req, res) => {
-  const client = await clientPromiseId;
+handler.delete(async (req, res) => {
+  const client = await clientPromise;
   const { id } = req.query;
   await client.db('cruddb').collection('products')
     .deleteOne({ _id: new ObjectId(id) });
   res.json({ success: true });
 });
 
-module.exports = handlerId;
+module.exports = handler;
