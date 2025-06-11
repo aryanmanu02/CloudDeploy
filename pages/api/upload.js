@@ -1,10 +1,9 @@
-const nextConnect = require('next-connect');
-const multer = require('multer');
-const aws = require('aws-sdk');
-const multerS3 = require('multer-s3');
+import nextConnect from 'next-connect';
+import multer from 'multer';
+import AWS from 'aws-sdk';
+import multerS3 from 'multer-s3';
 
-// ✅ Create S3 client using IAM Role
-const s3 = new aws.S3({
+const s3 = new AWS.S3({
   region: process.env.AWS_REGION,
 });
 
