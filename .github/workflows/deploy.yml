@@ -17,25 +17,18 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
-    - name: Add EC2 Host to Known Hosts
-      run: ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+    - name: Disable SSH strict host key checking
+      run: |
+        mkdir -p ~/.ssh
+        echo -e "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
 
     - name: Deploy via SSH
       run: |
         ssh ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
-          # Go to the project directory
           cd ~/TalantonCore-assign
-
-          # Pull latest code
           git pull origin main
-
-          # Install dependencies and build
           npm install
           npm run build
-
-          # Start or restart the app with PM2
           pm2 restart next-app || pm2 start npm --name "next-app" -- start --env production
-
-          # Save PM2 state
           pm2 save
         EOF
