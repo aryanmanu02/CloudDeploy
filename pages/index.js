@@ -32,7 +32,7 @@ export default function Home() {
       const payload = { name: form.name, price: form.price, image: imageUrl };
 
       if (editId) {
-        await fetch(`/api/products/${editId}`, {
+        await fetch(`/api/products?id=${editId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
@@ -58,7 +58,7 @@ export default function Home() {
   }
 
   async function handleDelete(id) {
-    await fetch(`/api/products/${id}`, { method: 'DELETE' });
+    await fetch(`/api/products?id=${id}`, { method: 'DELETE' });
     fetchProducts();
   }
 

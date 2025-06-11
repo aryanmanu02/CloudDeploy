@@ -1,23 +1,21 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { NextApiRequest, NextApiResponse } from 'next';
 import multer from 'multer';
 import { promisify } from 'util';
 
 const upload = multer({ storage: multer.memoryStorage() });
 const runMiddleware = promisify(upload.single('file'));
 
-// Replace with your S3 bucket name and region
 const s3Client = new S3Client({
-  region: process.env.AWS_REGION || 'your-region',
+  region: process.env.AWS_REGION,
   credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID || 'your-access-key-id',
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || 'your-secret-access-key'
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   }
 });
 
 export const config = {
   api: {
-    bodyParser: false
+    bodyParser: false,
   }
 };
 
@@ -38,7 +36,7 @@ export default async function handler(req, res) {
     const key = `uploads/${uniqueSuffix}-${req.file.originalname}`;
 
     const params = {
-      Bucket: process.env.S3_BUCKET_NAME || 'your-bucket-name',
+      Bucket: process.env.S3_BUCKET_NAME,
       Key: key,
       Body: req.file.buffer,
       ContentType: req.file.mimetype
@@ -46,9 +44,8 @@ export default async function handler(req, res) {
 
     await s3Client.send(new PutObjectCommand(params));
 
-    // Replace with your S3 bucket URL
-    const url = `https://${params.Bucket}.s3.${process.env.AWS_REGION || 'your-region'}.amazonaws.com/${key}`;
-
+    // Use the correct S3 endpoint for your region
+    const url = `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
     res.status(200).json({ url });
   } catch (err) {
     console.error('Upload error:', err);
