@@ -11,7 +11,8 @@ export default function Home() {
 
   async function fetchProducts() {
     const res = await fetch('/api/products');
-    setProducts(await res.json());
+    const data = await res.json();
+    setProducts(data);
   }
 
   async function uploadImage() {
@@ -37,7 +38,7 @@ export default function Home() {
           body: JSON.stringify(payload),
         });
       } else {
-        await fetch(`/api/products`, {
+        await fetch('/api/products', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
@@ -49,7 +50,8 @@ export default function Home() {
       setEditId(null);
       await fetchProducts();
     } catch (err) {
-      console.error(err);
+      console.error('Error:', err);
+      alert('Failed to save product. See console for details.');
     } finally {
       setLoading(false);
     }
