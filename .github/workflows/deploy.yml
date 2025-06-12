@@ -24,27 +24,54 @@ jobs:
 
     - name: Deploy via SSH
       run: |
-        ssh -o ServerAliveInterval=60 ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
-          # Navigate to app directory
-          cd ~/TalantonCore-assign
+        ssh -o ServerAliveInterval=60 ${{ secrets.EC2_HOST }} << 'EOF'
+          set -e
 
-          # Pull latest changes
+          # Clone if not already
+          if [ ! -d "TalantonCore-assign" ]; then
+            git clone https://github.com/aryanmanu02/TalantonCore-assign.git TalantonCore-assign
+          fi
+
+          cd TalantonCore-assign
+
+          # Pull updates
+          git reset --hard
           git pull origin main
 
-          # Install dependencies & build
-          npm install
-          npm run build
-
-          # Create or update .env.production file
+          # Write .env.production
           echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" > .env.production
           echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env.production
           echo "AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }}" >> .env.production
           echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> .env.production
           echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env.production
+          echo "NODE_ENV=production" >> .env.production
 
-          # Restart or start app using PM2 with environment variables
-          pm2 restart next-app || pm2 start npm --name "next-app" -- start --env production
+          # Build app
+          npm install
+          npm run build
 
-          # Save PM2 process list
+          # Restart app on port 3000 (backend only)
+          pm2 delete next-app || true
+          pm2 start npm --name "next-app" -- start
           pm2 save
+
+          # Set up NGINX
+          sudo tee /etc/nginx/sites-available/next-app << 'NGINX'
+          server {
+              listen 80;
+              server_name ec2-13-233-150-253.ap-south-1.compute.amazonaws.com;
+
+              location / {
+                  proxy_pass http://localhost:3000;
+                  proxy_http_version 1.1;
+                  proxy_set_header Upgrade $http_upgrade;
+                  proxy_set_header Connection 'upgrade';
+                  proxy_set_header Host $host;
+                  proxy_cache_bypass $http_upgrade;
+              }
+          }
+          NGINX
+
+          sudo ln -sf /etc/nginx/sites-available/next-app /etc/nginx/sites-enabled/default
+          sudo nginx -t && sudo systemctl reload nginx
         EOF
