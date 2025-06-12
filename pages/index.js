@@ -65,7 +65,7 @@ export default function Home() {
       };
 
       if (editId) {
-        await fetch(`/api/products?id=${editId}`, {
+        await fetch(`/api/products/${editId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
@@ -91,7 +91,7 @@ export default function Home() {
   }
 
   async function handleDelete(id) {
-    await fetch(`/api/products?id=${id}`, { method: 'DELETE' });
+    await fetch(`/api/products/${id}`, { method: 'DELETE' });
     fetchProducts();
   }
 
