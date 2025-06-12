@@ -3,9 +3,7 @@ import { MongoClient } from 'mongodb';
 
 const uri = process.env.MONGODB_URI;
 const options = {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  tls: true,
+  tls: true, // TLS is still needed for MongoDB Atlas
 };
 
 let client;
