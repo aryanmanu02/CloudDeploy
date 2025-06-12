@@ -1,13 +1,10 @@
 // pages/api/upload.js
-import nextConnect from 'next-connect';
-import multer from 'multer';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
-import s3Client from '../../utils/s3';
+import { S3Client } from '@aws-sdk/client-s3';
+import multer from 'multer';
+import nextConnect from 'next-connect';
 
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 } // 10MB
-});
+const upload = multer({ storage: multer.memoryStorage() });
 
 const handler = nextConnect();
 
@@ -16,24 +13,30 @@ handler.use(upload.single('file'));
 handler.post(async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ error: 'No file provided' });
+      return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    const { buffer, originalname, mimetype } = req.file;
-    const fileKey = `uploads/${Date.now()}-${originalname.replace(/\s+/g, '-')}`;
+    const s3 = new S3Client({
+      region: process.env.AWS_REGION,
+      credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+      }
+    });
 
+    const fileKey = `uploads/${Date.now()}-${req.file.originalname.replace(/\s+/g, '-')}`;
     const command = new PutObjectCommand({
       Bucket: process.env.AWS_S3_BUCKET,
       Key: fileKey,
-      Body: buffer,
-      ContentType: mimetype,
+      Body: req.file.buffer,
+      ContentType: req.file.mimetype,
       ACL: 'public-read'
     });
 
-    await s3Client.send(command);
+    await s3.send(command);
 
-    const fileUrl = `https://${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileKey}`;
-    res.status(200).json({ url: fileUrl });
+    const url = `https://${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileKey}`;
+    res.status(200).json({ url });
   } catch (error) {
     console.error('Upload error:', error);
     res.status(500).json({ error: 'Upload failed', message: error.message });
