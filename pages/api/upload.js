@@ -1,54 +1,59 @@
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import multer from 'multer';
-import { promisify } from 'util';
+const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
+const multer = require('multer');
+const nextConnect = require('next-connect');
+const { promisify } = require('util');
 
+// Set up memory storage for multer
 const upload = multer({ storage: multer.memoryStorage() });
 const runMiddleware = promisify(upload.single('file'));
 
+// Create S3 client
 const s3Client = new S3Client({
   region: process.env.AWS_REGION,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+});
+
+const handler = nextConnect({
+  onError(err, req, res) {
+    console.error('Upload error:', err);
+    res.status(500).json({ error: err.message });
+  },
+});
+
+handler.use(async (req, res, next) => {
+  await runMiddleware(req, res);
+  next();
+});
+
+handler.post(async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+
+  const file = req.file;
+  const uniqueKey = `uploads/${Date.now()}-${file.originalname}`;
+
+  const command = new PutObjectCommand({
+    Bucket: process.env.AWS_S3_BUCKET,
+    Key: uniqueKey,
+    Body: file.buffer,
+    ContentType: file.mimetype,
+    ACL: 'public-read',
+  });
+
+  try {
+    await s3Client.send(command);
+    const url = `https://${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${uniqueKey}`;
+    res.status(200).json({ url });
+  } catch (err) {
+    console.error('S3 Upload Error:', err);
+    res.status(500).json({ error: 'Upload failed' });
   }
 });
 
-export const config = {
+module.exports = handler;
+
+module.exports.config = {
   api: {
     bodyParser: false,
-  }
+  },
 };
-
-export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    res.status(405).end();
-    return;
-  }
-
-  try {
-    await runMiddleware(req, res);
-
-    if (!req.file) {
-      throw new Error('No file uploaded');
-    }
-
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    const key = `uploads/${uniqueSuffix}-${req.file.originalname}`;
-
-    const params = {
-      Bucket: process.env.S3_BUCKET_NAME,
-      Key: key,
-      Body: req.file.buffer,
-      ContentType: req.file.mimetype
-    };
-
-    await s3Client.send(new PutObjectCommand(params));
-
-    // Use the correct S3 endpoint for your region
-    const url = `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
-    res.status(200).json({ url });
-  } catch (err) {
-    console.error('Upload error:', err);
-    res.status(500).json({ error: err.message });
-  }
-}
