@@ -2,7 +2,28 @@ import nextConnect from 'next-connect';
 import { ObjectId } from 'mongodb';
 import clientPromise from '../../../utils/mongodb';
 
-const handler = nextConnect();
+const handler = nextConnect({
+  onNoMatch(req, res) {
+    res.status(405).json({ error: `Method '${req.method}' Not Allowed` });
+  },
+  onError(err, req, res) {
+    console.error('API Error:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// CORS middleware
+handler.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  next();
+});
+
+// OPTIONS handler for preflight
+handler.options((req, res) => {
+  res.status(200).end();
+});
 
 handler.put(async (req, res) => {
   try {
