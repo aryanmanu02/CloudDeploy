@@ -1,8 +1,14 @@
-const { S3Client } = require('@aws-sdk/client-s3');
+// utils/s3.js
+import { S3Client } from '@aws-sdk/client-s3';
 
 const s3Client = new S3Client({
   region: process.env.AWS_REGION,
-  // credentials not needed if using EC2 IAM Role
+  ...(process.env.AWS_ACCESS_KEY_ID && {
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    }
+  })
 });
 
-module.exports = s3Client;
+export default s3Client;

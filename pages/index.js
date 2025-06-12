@@ -10,18 +10,36 @@ export default function Home() {
   useEffect(() => { fetchProducts(); }, []);
 
   async function fetchProducts() {
-    const res = await fetch('/api/products');
-    const data = await res.json();
-    setProducts(data);
+    try {
+      const res = await fetch('/api/products');
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status} - ${await res.text()}`);
+      }
+      const data = await res.json();
+      setProducts(data);
+    } catch (error) {
+      console.error('Fetch error:', error);
+      alert('Failed to load products. Check console for details.');
+    }
   }
 
   async function uploadImage() {
     if (!file) return form.image;
-    const data = new FormData();
-    data.append('file', file);
-    const res = await fetch('/api/upload', { method: 'POST', body: data });
-    if (!res.ok) throw new Error('Image upload failed');
-    return (await res.json()).url;
+    
+    try {
+      const data = new FormData();
+      data.append('file', file);
+      const res = await fetch('/api/upload', { method: 'POST', body: data });
+      
+      if (!res.ok) {
+        throw new Error(`Upload failed: ${await res.text()}`);
+      }
+      
+      return (await res.json()).url;
+    } catch (error) {
+      console.error('Upload error:', error);
+      throw error;
+    }
   }
 
   async function handleSubmit(e) {

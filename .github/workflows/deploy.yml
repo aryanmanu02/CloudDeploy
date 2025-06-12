@@ -22,7 +22,6 @@ jobs:
         mkdir -p ~/.ssh
         echo -e "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
 
-
     - name: Deploy via SSH
       run: |
         ssh -o ServerAliveInterval=60 ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
@@ -40,6 +39,8 @@ jobs:
           echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" > .env.production
           echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env.production
           echo "AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }}" >> .env.production
+          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> .env.production
+          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env.production
 
           # Restart or start app using PM2 with environment variables
           pm2 restart next-app || pm2 start npm --name "next-app" -- start --env production
