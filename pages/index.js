@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 export default function Home() {
   const [products, setProducts] = useState([]);
   const [form, setForm] = useState({ name: '', price: '', image: '' });
+  // const [file, setFile] = useState(null); // Comment out or remove
   const [editId, setEditId] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -22,10 +23,33 @@ export default function Home() {
     }
   }
 
+  /* Comment out or remove the uploadImage function
+  async function uploadImage() {
+    if (!file) return form.image;
+    
+    try {
+      const data = new FormData();
+      data.append('file', file);
+      const res = await fetch('/api/upload', { method: 'POST', body: data });
+      
+      if (!res.ok) {
+        throw new Error(`Upload failed: ${await res.text()}`);
+      }
+      
+      return (await res.json()).url;
+    } catch (error) {
+      console.error('Upload error:', error);
+      throw error;
+    }
+  }
+  */
+
   async function handleSubmit(e) {
     e.preventDefault();
     setLoading(true);
     try {
+      // const imageUrl = await uploadImage(); // Comment out or remove
+      // Use the direct image URL from form instead
       const payload = { name: form.name, price: form.price, image: form.image };
 
       if (editId) {
@@ -43,6 +67,7 @@ export default function Home() {
       }
 
       setForm({ name: '', price: '', image: '' });
+      // setFile(null); // Comment out or remove
       setEditId(null);
       await fetchProducts();
     } catch (err) {
@@ -62,6 +87,12 @@ export default function Home() {
     setForm({ name: product.name, price: product.price, image: product.image });
     setEditId(product._id);
   }
+
+  /* Comment out or remove the handleFileChange function
+  function handleFileChange(e) {
+    setFile(e.target.files?.[0] || null);
+  }
+  */
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
@@ -140,7 +171,7 @@ export default function Home() {
               <div className="space-x-2">
                 <button
                   onClick={() => handleEdit(product)}
-                  className="text-sm px-3 py-1 bg-yellow-400 rounded hover:bg-yellow-500"
+                  className="text-sm px-3 py-1 bg-yellow-400 rounded hover:bg-yellow-501"
                 >
                   Edit
                 </button>
