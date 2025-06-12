@@ -36,7 +36,12 @@ jobs:
           npm install
           npm run build
 
-          # Restart or start app using PM2
+          # Create or update .env.production file
+          echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" > .env.production
+          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env.production
+          echo "AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }}" >> .env.production
+
+          # Restart or start app using PM2 with environment variables
           pm2 restart next-app || pm2 start npm --name "next-app" -- start --env production
 
           # Save PM2 process list
