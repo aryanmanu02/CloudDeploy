@@ -11,7 +11,7 @@ handler.put(async (req, res) => {
     const { id } = req.query;
 
     if (!ObjectId.isValid(id)) {
-      return res.status(400).json({ error: 'Invalid ID' });
+      return res.status(400).json({ error: 'Invalid ID format' });
     }
 
     const result = await db.collection('products').updateOne(
@@ -19,7 +19,11 @@ handler.put(async (req, res) => {
       { $set: req.body }
     );
 
-    res.status(200).json({ message: 'Updated', result });
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    res.status(200).json({ message: 'Product updated', result });
   } catch (error) {
     console.error('PUT error:', error);
     res.status(500).json({ error: 'Failed to update product' });
@@ -33,14 +37,18 @@ handler.delete(async (req, res) => {
     const { id } = req.query;
 
     if (!ObjectId.isValid(id)) {
-      return res.status(400).json({ error: 'Invalid ID' });
+      return res.status(400).json({ error: 'Invalid ID format' });
     }
 
     const result = await db.collection('products').deleteOne({
       _id: new ObjectId(id)
     });
 
-    res.status(200).json({ message: 'Deleted', result });
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    res.status(200).json({ message: 'Product deleted', result });
   } catch (error) {
     console.error('DELETE error:', error);
     res.status(500).json({ error: 'Failed to delete product' });

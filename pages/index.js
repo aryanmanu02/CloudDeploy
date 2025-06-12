@@ -91,9 +91,17 @@ export default function Home() {
   }
 
   async function handleDelete(id) {
-    await fetch(`/api/products/${id}`, { method: 'DELETE' });
-    fetchProducts();
+    try {
+      const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Delete failed');
+      await fetchProducts();
+    } catch (err) {
+      console.error('Delete error:', err);
+      alert('Failed to delete product.');
+    }
   }
+
 
   function handleEdit(product) {
     setForm({ name: product.name, price: product.price, image: product.image });
