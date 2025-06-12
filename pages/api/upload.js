@@ -1,4 +1,3 @@
-// pages/api/upload.js
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { S3Client } from '@aws-sdk/client-s3';
 import multer from 'multer';
@@ -6,7 +5,12 @@ import nextConnect from 'next-connect';
 
 const upload = multer({ storage: multer.memoryStorage() });
 
-const handler = nextConnect();
+const handler = nextConnect({
+  onError: (err, req, res) => {
+    console.error('Upload API error:', err);
+    res.status(500).json({ error: 'Server Error', message: err.message });
+  }
+});
 
 handler.use(upload.single('file'));
 

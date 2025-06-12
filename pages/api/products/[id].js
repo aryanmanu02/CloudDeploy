@@ -1,4 +1,3 @@
-// pages/api/products/[id].js
 import nextConnect from 'next-connect';
 import { ObjectId } from 'mongodb';
 import clientPromise from '../../../utils/mongodb';
@@ -6,15 +5,10 @@ import clientPromise from '../../../utils/mongodb';
 const handler = nextConnect({
   onError: (err, req, res) => {
     console.error('API route error:', err.stack || err);
-    res.status(500).json({ 
-      error: 'Internal Server Error', 
-      message: err.message 
-    });
+    res.status(500).json({ error: 'Internal Server Error', message: err.message });
   },
   onNoMatch: (req, res) => {
-    res.status(405).json({ 
-      error: `Method '${req.method}' Not Allowed` 
-    });
+    res.status(405).json({ error: `Method '${req.method}' Not Allowed` });
   }
 });
 
@@ -52,7 +46,7 @@ handler.delete(async (req, res) => {
   try {
     const client = await clientPromise;
     const { id } = req.query;
-    
+
     if (!id || !ObjectId.isValid(id)) {
       return res.status(400).json({ error: 'Invalid product ID' });
     }
