@@ -17,8 +17,11 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
-    - name: Add EC2 Host to Known Hosts
-      run: ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+    - name: Disable strict host key checking
+      run: |
+        mkdir -p ~/.ssh
+        echo -e "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
+
 
     - name: Deploy via SSH
       run: |
