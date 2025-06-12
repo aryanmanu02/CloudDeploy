@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 export default function Home() {
   const [products, setProducts] = useState([]);
   const [form, setForm] = useState({ name: '', price: '', image: '' });
-  const [file, setFile] = useState(null);
   const [editId, setEditId] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -23,31 +22,11 @@ export default function Home() {
     }
   }
 
-  async function uploadImage() {
-    if (!file) return form.image;
-    
-    try {
-      const data = new FormData();
-      data.append('file', file);
-      const res = await fetch('/api/upload', { method: 'POST', body: data });
-      
-      if (!res.ok) {
-        throw new Error(`Upload failed: ${await res.text()}`);
-      }
-      
-      return (await res.json()).url;
-    } catch (error) {
-      console.error('Upload error:', error);
-      throw error;
-    }
-  }
-
   async function handleSubmit(e) {
     e.preventDefault();
     setLoading(true);
     try {
-      const imageUrl = await uploadImage();
-      const payload = { name: form.name, price: form.price, image: imageUrl };
+      const payload = { name: form.name, price: form.price, image: form.image };
 
       if (editId) {
         await fetch(`/api/products?id=${editId}`, {
@@ -64,7 +43,6 @@ export default function Home() {
       }
 
       setForm({ name: '', price: '', image: '' });
-      setFile(null);
       setEditId(null);
       await fetchProducts();
     } catch (err) {
@@ -83,10 +61,6 @@ export default function Home() {
   function handleEdit(product) {
     setForm({ name: product.name, price: product.price, image: product.image });
     setEditId(product._id);
-  }
-
-  function handleFileChange(e) {
-    setFile(e.target.files?.[0] || null);
   }
 
   return (
@@ -116,16 +90,16 @@ export default function Home() {
             />
           </div>
           <div>
-            <label className="block mb-1 font-medium">Image</label>
+            <label className="block mb-1 font-medium">Image URL (optional)</label>
             <input
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              className="w-full"
+              type="text"
+              className="w-full p-2 border rounded"
+              value={form.image}
+              onChange={e => setForm({ ...form, image: e.target.value })}
             />
-            {(form.image || file) && (
+            {form.image && (
               <img
-                src={file ? URL.createObjectURL(file) : form.image}
+                src={form.image}
                 alt="Preview"
                 className="w-24 h-24 mt-2 object-cover rounded"
               />
