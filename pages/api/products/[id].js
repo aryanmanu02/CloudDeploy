@@ -2,6 +2,7 @@ import nextConnect from 'next-connect';
 import { ObjectId } from 'mongodb';
 import clientPromise from '../../../utils/mongodb';
 
+// Initialize handler with error handling
 const handler = nextConnect({
   onNoMatch(req, res) {
     res.status(405).json({ error: `Method '${req.method}' Not Allowed` });
@@ -15,16 +16,18 @@ const handler = nextConnect({
 // CORS middleware
 handler.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  
+  // Handle preflight requests immediately
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   next();
 });
 
-// OPTIONS handler for preflight
-handler.options((req, res) => {
-  res.status(200).end();
-});
-
+// PUT (Update) handler
 handler.put(async (req, res) => {
   try {
     const client = await clientPromise;
@@ -51,6 +54,7 @@ handler.put(async (req, res) => {
   }
 });
 
+// DELETE handler
 handler.delete(async (req, res) => {
   try {
     const client = await clientPromise;
