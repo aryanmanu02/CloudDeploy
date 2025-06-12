@@ -59,7 +59,7 @@ jobs:
           sudo tee /etc/nginx/sites-available/next-app << 'NGINX'
           server {
               listen 80;
-              server_name ec2-13-233-150-253.ap-south-1.compute.amazonaws.com;
+              server_name 65.0.75.23;
 
               location / {
                   proxy_pass http://localhost:3000;
