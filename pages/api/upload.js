@@ -33,8 +33,7 @@ handler.post(async (req, res) => {
       Bucket: process.env.AWS_S3_BUCKET,
       Key: fileKey,
       Body: req.file.buffer,
-      ContentType: req.file.mimetype,
-      ACL: 'public-read'
+      ContentType: req.file.mimetype
     });
 
     await s3.send(command);
