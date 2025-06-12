@@ -1,35 +1,21 @@
-const { MongoClient } = require('mongodb');
+// utils/mongodb.js
+import { MongoClient } from 'mongodb';
 
 const uri = process.env.MONGODB_URI;
-if (!uri) {
-  console.error('CRITICAL ERROR: MONGODB_URI environment variable is not set');
-}
+if (!uri) throw new Error('MONGODB_URI not configured');
 
+let client;
 let clientPromise;
 
 if (process.env.NODE_ENV === 'development') {
   if (!global._mongoClientPromise) {
-    const client = new MongoClient(uri, {
-      maxPoolSize: 10,
-      connectTimeoutMS: 5000,
-      socketTimeoutMS: 30000
-    });
-    global._mongoClientPromise = client.connect().catch(err => {
-      console.error('MongoDB connection error:', err);
-      throw err;
-    });
+    client = new MongoClient(uri);
+    global._mongoClientPromise = client.connect();
   }
   clientPromise = global._mongoClientPromise;
 } else {
-  const client = new MongoClient(uri, {
-    maxPoolSize: 10,
-    connectTimeoutMS: 5000,
-    socketTimeoutMS: 30000
-  });
-  clientPromise = client.connect().catch(err => {
-    console.error('MongoDB connection error:', err);
-    throw err;
-  });
+  client = new MongoClient(uri);
+  clientPromise = client.connect();
 }
 
-module.exports = clientPromise;
+export default clientPromise; // <-- ES module export
