@@ -43,19 +43,21 @@ A full-stack CRUD application built with **Next.js**, **MongoDB Atlas**, and **A
 1. SSH into EC2
 ```bash
 ssh -i "path/to/key.pem" ubuntu@<EC2_PUBLIC_IP>
+```
 
 2. Install Node.js & PM2
 ```bash
 curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt install -y nodejs
 sudo npm install -g pm2
+```
 
 3. Clone & Setup App
-
 ```bash
 git clone https://github.com/aryanmanu02/TalantonCore-assign.git
 cd TalantonCore-assign
 nano .env.production
+```
 
 Add the following environment variables:
 
@@ -66,7 +68,7 @@ AWS_S3_BUCKET=your_bucket
 AWS_ACCESS_KEY_ID=your_access_key
 AWS_SECRET_ACCESS_KEY=your_secret
 NODE_ENV=production
-
+```
 
 Then install dependencies and start the app:
 
@@ -75,16 +77,15 @@ npm install
 npm run build
 pm2 start npm --name "next-app" -- start
 pm2 save
-
+```
 
 
 4. Set Up NGINX Reverse Proxy
 
 Create a new NGINX config:
-
 ```bash
 sudo nano /etc/nginx/sites-available/next-app
-
+```
 
 Paste the following configuration:
 
@@ -102,29 +103,68 @@ server {
         proxy_cache_bypass $http_upgrade;
     }
 }
-
+```
 Enable the site and reload NGINX:
 ```bash
 sudo ln -sf /etc/nginx/sites-available/next-app /etc/nginx/sites-enabled/default
 sudo nginx -t && sudo systemctl reload nginx
+```
+
+## 🔁 GitHub Actions - CI/CD Deployment
+
+CI/CD is handled using GitHub Actions. On every push to `main`, the app is deployed to your EC2 instance.
+
+📄 **Workflow File Location:**  
+`.github/workflows/deploy.yml`
+
+### 🚀 This workflow automatically:
+
+- 🔐 Connects to EC2 via SSH  
+- 📥 Pulls the latest code from GitHub  
+- 📦 Installs dependencies  
+- 🏗️ Builds the Next.js app  
+- 🔁 Restarts the app using PM2  
+- 🔄 Reloads NGINX to apply changes
+
+
+## ✅ GitHub Secrets Setup
+
+To set up secrets for CI/CD:
+
+🔧 Go to:  
+`GitHub → Repository → Settings → Secrets → Actions`
+
+### 🔐 Add the following secrets:
+
+| Name                    | Description                          |
+|-------------------------|--------------------------------------|
+| `EC2_HOST`              | `ubuntu@<EC2_PUBLIC_IP>`             |
+| `EC2_SSH_KEY`           | Contents of your `.pem` private key |
+| `MONGODB_URI`           | MongoDB Atlas URI                    |
+| `AWS_REGION`            | e.g. `ap-south-1`                    |
+| `AWS_S3_BUCKET`         | Your S3 bucket name                  |
+| `AWS_ACCESS_KEY_ID`     | IAM access key ID                    |
+| `AWS_SECRET_ACCESS_KEY` | IAM secret access key                |
 
 
 
-🔁 GitHub Actions - CI/CD Deployment
-CI/CD is handled using GitHub Actions. On every push to main, the app is deployed to EC2.
+## 🧠 Learnings & Challenges
 
-🔐 Required GitHub Secrets
-EC2_HOST – Public IP of your EC2 instance
+- ✅ Correct route format matters — dynamic `[id].js` requires `/products/:id`, **not** `?id=`
+- ✅ `pm2 save` ensures the app restarts automatically after an EC2 reboot
+- ✅ You must run `npm run build` after every code update for changes to reflect
+- ✅ Perform a **hard reload** (Ctrl + Shift + R) in the browser after deployment to clear cache
+- ✅ GitHub Actions only triggers on **push to `main`** (or whichever branch is configured)
 
-EC2_USER – Default is ubuntu
+## 🌐 Live Demo
 
-EC2_KEY – Your private key content (e.g. from .pem file)
+👉 [http://<your-ec2-public-ip>](http://<your-ec2-public-ip>)
 
+---
 
+## 👨‍💻 Author
 
-
-
-
+Made by **Aryan Nimkar**
 
 
 
