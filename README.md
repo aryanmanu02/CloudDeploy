@@ -16,11 +16,8 @@ A full-stack CRUD application built with **Next.js**, **MongoDB Atlas**, and **A
 ---
 
 ## 🗂️ Project Structure
-
+```
 📂 pages/
-├── _app.js
-├── _document.js
-├── index.js
 └── api/
     ├── health.js
     ├── upload.js
@@ -35,7 +32,7 @@ A full-stack CRUD application built with **Next.js**, **MongoDB Atlas**, and **A
 📂 .github/
 └── workflows/
     └── deploy.yml      # GitHub Actions workflow for EC2 deploy
-
+```
 
 
 ## ⚙️ EC2 Deployment Steps
@@ -156,24 +153,19 @@ To set up secrets for CI/CD:
 - ✅ Perform a **hard reload** (Ctrl + Shift + R) in the browser after deployment to clear cache
 - ✅ GitHub Actions only triggers on **push to `main`** (or whichever branch is configured)
 
+
+## 📹 Source Code
+
+- 🎥 **Video Walkthrough:**  
+  [Watch on Google Drive](https://drive.google.com/drive/folders/1TuOojH1Z5n0vbviomTgcZ_E0tRCoWC95?usp=sharing)
+ 
+
 ## 🌐 Live Demo
 
-👉 [http://<your-ec2-public-ip>](http://<your-ec2-public-ip>)
+👉 [http://your-ec2-public-ip]
 
 ---
 
 ## 👨‍💻 Author
 
 Made by **Aryan Nimkar**
-
-
-
-
-
-
-
-
-
-
-
-
