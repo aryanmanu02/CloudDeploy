@@ -1,4 +1,4 @@
-# 🚀 TalantonCore - Fullstack CRUD App
+# 🚀 CloudDeploy
 
 A full-stack CRUD application built with **Next.js**, **MongoDB Atlas**, and **AWS S3**, deployed to an **AWS EC2 Ubuntu instance** with **NGINX** and **PM2**, and continuously deployed via **GitHub Actions**.
 
